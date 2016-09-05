@@ -30,9 +30,11 @@
 #include "../inc/tm4c123gh6pm.h"
 #include "PLL.h"
 #include "Timer.c"
+#include "ST7735.h"
 
 #define PF2             (*((volatile uint32_t *)0x40025010))
 #define PF1             (*((volatile uint32_t *)0x40025008))
+void DelayWait10ms(uint32_t n);
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 long StartCritical (void);    // previous I bit, disable interrupts
@@ -68,6 +70,34 @@ static int times[1000];
 static int data[1000];
 static int currentIndex = 0;
 
+void plot(void){
+	int max = data[0], min = data[0];
+	for(int i=1; i<sizeof(data); i++){//First pass: get range of x values
+		if(max < data[i])
+			max = data[i];
+		if(min > data[i])
+			min = data[i];
+	}
+	
+	int occurances[max-min];
+	int mode = 0;
+	for(int i=0; i<sizeof(data); i++){//Second pass: get # of occurances
+		occurances[data[i] - min] += 1;
+		if(occurances[data[i]] > mode)
+			mode = occurances[data[i]];
+	}
+	
+	ST7735_InitR(INITR_REDTAB);
+	ST7735_FillScreen(0);  // set screen to black
+  ST7735_SetCursor(0,0);
+	for(int i=0; i<sizeof(occurances); i++){//for each x value from min to max
+		int x = 128*(i)/(max-min);//Scale x value
+		int h = 160*occurances[i]/mode;//Scale bar height
+		int y = 160;
+		ST7735_DrawFastVLine(x, y, h, ST7735_BLUE);
+	}
+}
+
 void Timer0A_Handler(void){
   TIMER0_ICR_R = TIMER_ICR_TATOCINT;    // acknowledge timer0A timeout
   PF2 ^= 0x04;                   // profile
@@ -79,6 +109,9 @@ void Timer0A_Handler(void){
 		times[currentIndex] = TIMER1_TAR_R;
 		data[currentIndex] = ADCvalue;
 		currentIndex += 1;
+	}
+	if(currentIndex == 999) {//After all data has been taken
+		plot();//Draw pmf plot
 	}
 	
   PF2 ^= 0x04;                   // profile
