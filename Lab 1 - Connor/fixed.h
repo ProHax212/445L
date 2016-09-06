@@ -1,8 +1,13 @@
-// filename ******** fixed.h ************** 
-// possible header file for Lab 1 
-// feel free to change the specific syntax of your system
+// filename ******** fixed.h **************
 // Brian Connor White - bcw824
-// put the date here
+// Ryan Comer - rnc525
+// Initial Creation Date: 09/01/2016
+
+// This file contains the definitions for the functions in lab 1
+
+// Lab: 1
+// TA: Dylan Zika
+// Last Revision: 09/05/2016
 
 #ifndef fixed_h
 #define fixed_h

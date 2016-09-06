@@ -115,10 +115,6 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>DLGUARM</Key>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
           <Key>DLGDARM</Key>
           <Name>(1010=-1,-1,-1,-1,0)(1007=-1,-1,-1,-1,0)(1008=-1,-1,-1,-1,0)(1009=-1,-1,-1,-1,0)(1012=-1,-1,-1,-1,0)(9108=590,176,755,398,1)(9106=-1,-1,-1,-1,0)(9104=-1,-1,-1,-1,0)(9107=-1,-1,-1,-1,0)(9102=782,176,1178,450,1)</Name>
         </SetRegEntry>
@@ -199,7 +195,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>273</TopLine>
+      <TopLine>274</TopLine>
       <CurrentLine>277</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\startup.s</PathWithFileName>
@@ -215,7 +211,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>70</TopLine>
+      <TopLine>71</TopLine>
       <CurrentLine>82</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\PLL.c</PathWithFileName>
@@ -231,7 +227,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>1048</TopLine>
+      <TopLine>1049</TopLine>
       <CurrentLine>1052</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\ST7735.c</PathWithFileName>
@@ -245,10 +241,10 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
-      <ColumnNumber>0</ColumnNumber>
+      <ColumnNumber>16</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>127</TopLine>
-      <CurrentLine>167</CurrentLine>
+      <TopLine>25</TopLine>
+      <CurrentLine>148</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Lab1.c</PathWithFileName>
       <FilenameWithoutPath>Lab1.c</FilenameWithoutPath>
@@ -279,7 +275,7 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>67</TopLine>
+      <TopLine>80</TopLine>
       <CurrentLine>107</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\fixed.c</PathWithFileName>

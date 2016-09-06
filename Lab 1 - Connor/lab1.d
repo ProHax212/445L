@@ -5,4 +5,3 @@
 .\lab1.o: ST7735.h
 .\lab1.o: PLL.h
 .\lab1.o: fixed.h
-.\lab1.o: ..\../inc/tm4c123gh6pm.h
