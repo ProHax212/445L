@@ -9,7 +9,7 @@
 
 #include "fixed.h"
 
-int32_t xMin, xMax, yMin, yMax;
+int32_t XMin, XMax, YMin, YMax;
 
 /****************ST7735_sDecOut3***************
  converts fixed point number to LCD
@@ -83,10 +83,10 @@ void ST7735_XYplotInit(char *title, int32_t minX, int32_t maxX, int32_t minY, in
 	ST7735_FillScreen(0);  // set screen to black
   ST7735_SetCursor(0,0);
 	ST7735_OutString(title);
-	xMin = minX;
-	xMax = maxX;
-	yMin = minY;
-	yMax = maxY;
+	XMin = minX;
+	XMax = maxX;
+	YMin = minY;
+	YMax = maxY;
 }
 
 /**************ST7735_XYplot***************
@@ -99,15 +99,15 @@ void ST7735_XYplotInit(char *title, int32_t minX, int32_t maxX, int32_t minY, in
  neglect any points outside the minX maxY minY maxY bounds
 */
 void ST7735_XYplot(uint32_t num, int32_t bufX[], int32_t bufY[]){
-	int32_t domain = xMax - xMin;
-	int32_t range = yMax - yMin;
+	int32_t domain = XMax - XMin;
+	int32_t range = YMax - YMin;
 	
 	for(int p=0; p<num; p++){
 		int32_t x = bufX[p];
 		int32_t y = bufY[p];
 		
-		if(x < xMax && x > xMin && y > yMin && y < yMax)
-			ST7735_DrawPixel(((x-xMin)*ST7735_TFTWIDTH/domain), 32+ST7735_TFTWIDTH-((y-yMin)*ST7735_TFTWIDTH/range), ST7735_YELLOW);
+		if(x < XMax && x > XMin && y > YMin && y < YMax)
+			ST7735_DrawPixel(((x-XMin)*ST7735_TFTWIDTH/domain), 32+ST7735_TFTWIDTH-((y-YMin)*ST7735_TFTWIDTH/range), ST7735_YELLOW);
 	}
 }
 

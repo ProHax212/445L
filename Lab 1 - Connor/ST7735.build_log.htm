@@ -3,42 +3,40 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
-C:\Users\ryan_comer\Desktop\Fall 2016\EE445L Labs\Lab 1 - Connor\ST7735.uvproj
+C:\Keil\ValvanoWareTM4C123\Lab 1 - Connor\ST7735.uvproj
 Project File Date:  09/05/2016
 
 <h2>Output:</h2>
 Rebuild target 'ST7735'
 assembling startup.s...
 compiling PLL.c...
-PLL.c(26): error:  #5: cannot open source input file "../inc/tm4c123gh6pm.h": No such file or directory
-  #include "../inc/tm4c123gh6pm.h"
-PLL.c: 0 warnings, 1 error
 compiling ST7735.c...
-ST7735.c(94): error:  #5: cannot open source input file "../inc/tm4c123gh6pm.h": No such file or directory
-  #include "../inc/tm4c123gh6pm.h"
-ST7735.c: 0 warnings, 1 error
 compiling Lab1.c...
-Lab1.c(25): error:  #5: cannot open source input file "../inc/tm4c123gh6pm.h": No such file or directory
-  #include "../inc/tm4c123gh6pm.h"
-Lab1.c: 0 warnings, 1 error
 compiling fixed.c...
-fixed.c(28): warning:  #223-D: function "printf" declared implicitly
+fixed.c(31): warning:  #223-D: function "printf" declared implicitly
                 printf("-");
-fixed.c(30): warning:  #223-D: function "printf" declared implicitly
+fixed.c(33): warning:  #223-D: function "printf" declared implicitly
                 printf(" ");
-fixed.c(31): warning:  #223-D: function "abs" declared implicitly
+fixed.c(34): warning:  #223-D: function "abs" declared implicitly
         int32_t absN = abs(n);
-fixed.c(34): warning:  #223-D: function "printf" declared implicitly
+fixed.c(37): warning:  #223-D: function "printf" declared implicitly
                 printf("*.***");
-fixed.c(36): warning:  #223-D: function "printf" declared implicitly
+fixed.c(39): warning:  #223-D: function "printf" declared implicitly
                 printf("%1d.%0.3d", absN/1000, absN%1000);
-fixed.c(63): warning:  #223-D: function "printf" declared implicitly
+fixed.c(66): warning:  #223-D: function "printf" declared implicitly
                 printf("***.**");
-fixed.c(65): warning:  #223-D: function "printf" declared implicitly
+fixed.c(68): warning:  #223-D: function "printf" declared implicitly
                 printf("%3d.%0.2d", n/256, ((n%256)*100)/256);
 fixed.c: 7 warnings, 0 errors
-".\ST7735.axf" - 3 Error(s), 7 Warning(s).
+linking...
+Program Size: Code=4428 RO-data=4324 RW-data=64 ZI-data=1024  
+".\ST7735.axf" - 0 Error(s), 7 Warning(s).
+ identifier "xMin" is undefined
+                if(x < xMax && x > xMin && y > yMin && y < yMax)
+fixed.c(109): error:  #20: identifier "yMin" is undefined
+                if(x < xMax && x > xMin && y > yMin && y < yMax)
+fixed.c(109): error:  #20: identifier "yMax" is undefined
+                if(x < xMax && x > xMin && y > yMin && y < yMax)
+fixed.c: 7 warnings, 4 errors
+".\ST7735.axf" - 4 Error(s), 7 Warning(s).
 Target not created
-</pre>
-</body>
-</html>

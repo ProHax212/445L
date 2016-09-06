@@ -116,11 +116,11 @@ Section Cross References
     lab1.o(i.main5) refers to lab1.o(i.PortF_Init) for PortF_Init
     lab1.o(i.main5) refers to lab1.o(i.DelayWait10ms) for DelayWait10ms
     fixed.o(i.ST7735_XYplot) refers to st7735.o(i.ST7735_DrawPixel) for ST7735_DrawPixel
-    fixed.o(i.ST7735_XYplot) refers to fixed.o(.data) for xMax
+    fixed.o(i.ST7735_XYplot) refers to fixed.o(.data) for XMax
     fixed.o(i.ST7735_XYplotInit) refers to st7735.o(i.ST7735_FillScreen) for ST7735_FillScreen
     fixed.o(i.ST7735_XYplotInit) refers to st7735.o(i.ST7735_SetCursor) for ST7735_SetCursor
     fixed.o(i.ST7735_XYplotInit) refers to st7735.o(i.ST7735_OutString) for ST7735_OutString
-    fixed.o(i.ST7735_XYplotInit) refers to fixed.o(.data) for xMin
+    fixed.o(i.ST7735_XYplotInit) refers to fixed.o(.data) for XMin
     fixed.o(i.ST7735_sDecOut3) refers to printf6.o(i.__0printf$6) for __2printf
     fixed.o(i.ST7735_uBinOut8) refers to printf6.o(i.__0printf$6) for __2printf
     entry.o(.ARM.Collect$$$$00000000) refers (Special) to entry10a.o(.ARM.Collect$$$$0000000D) for __rt_final_cpp
@@ -795,10 +795,10 @@ Image Symbol Table
     Ymin                                     0x20000020   Data           4  st7735.o(.data)
     X                                        0x20000024   Data           4  st7735.o(.data)
     Yrange                                   0x20000028   Data           4  st7735.o(.data)
-    xMin                                     0x2000002c   Data           4  fixed.o(.data)
-    xMax                                     0x20000030   Data           4  fixed.o(.data)
-    yMin                                     0x20000034   Data           4  fixed.o(.data)
-    yMax                                     0x20000038   Data           4  fixed.o(.data)
+    XMin                                     0x2000002c   Data           4  fixed.o(.data)
+    XMax                                     0x20000030   Data           4  fixed.o(.data)
+    YMin                                     0x20000034   Data           4  fixed.o(.data)
+    YMax                                     0x20000038   Data           4  fixed.o(.data)
     __stdout                                 0x2000003c   Data           4  stdout.o(.data)
     __initial_sp                             0x20000440   Data           0  startup.o(STACK)
 
@@ -893,14 +893,14 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-       404         86          0         16          0       2618   fixed.o
-       508        128       2272          0          0       2742   lab1.o
-       124          6          0          0          0       4619   pll.o
-      1738        190       2018         44          0      13658   st7735.o
+       404         86          0         16          0       2614   fixed.o
+       508        128       2272          0          0       2726   lab1.o
+       124          6          0          0          0       4615   pll.o
+      1738        190       2018         44          0      13630   st7735.o
        644        620          0          0       1024        688   startup.o
 
     ----------------------------------------------------------------------
-      3422       1030       4324         60       1024      24325   Object Totals
+      3422       1030       4324         60       1024      24273   Object Totals
          0          0         32          0          0          0   (incl. Generated)
          4          0          2          0          0          0   (incl. Padding)
 
@@ -942,8 +942,8 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      4428       1062       4324         64       1024      23421   Grand Totals
-      4428       1062       4324         64       1024      23421   ELF Image Totals
+      4428       1062       4324         64       1024      23369   Grand Totals
+      4428       1062       4324         64       1024      23369   ELF Image Totals
       4428       1062       4324         64          0          0   ROM Totals
 
 ==============================================================================
