@@ -93,6 +93,7 @@ const int32_t StarXbuf[50] = {0, -6, -12, -18, -24, -30, -35, -41, -47, -53, 59,
 };
 const int32_t StarYbuf[50] = {190, 172, 154, 136, 118, 100, 81, 63, 45, 27, 9, 27, 45, 63, 81, 100, 118, 136, 154, 172, 121, 121, 121, 121, 121, 121, 121, 121, 121, 121, 9, 20, 31, 43, 54, 65, 76, 87, 99, 110, 121, 110, 99, 87, 76, 65, 54, 43, 31, 20
 };
+
 int main(void){uint32_t i;
   PLL_Init(4);
   PortF_Init();
@@ -115,7 +116,7 @@ int main(void){uint32_t i;
       ST7735_OutString((char*)outTests2[i].OutBuffer); // expected solution
     }
     Pause();
-
+		
     ST7735_XYplotInit("Circle",-2500, 2500, -2500, 2500);
     ST7735_XYplot(180,(int32_t *)CircleXbuf,(int32_t *)CircleYbuf);
     Pause();
@@ -124,7 +125,7 @@ int main(void){uint32_t i;
     ST7735_XYplot(50,(int32_t *)StarXbuf,(int32_t *)StarYbuf);
     Pause(); 
   } 
-} 
+}
 
 // PF4 is input
 // Make PF2 an output, enable digital I/O, ensure alt. functions off
