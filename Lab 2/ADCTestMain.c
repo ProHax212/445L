@@ -29,17 +29,19 @@
 #include "ADCSWTrigger.h"
 #include "../inc/tm4c123gh6pm.h"
 #include "PLL.h"
-#include "Timer.c"
+#include "Timer1.h"
 #include "ST7735.h"
 
 #define PF2             (*((volatile uint32_t *)0x40025010))
 #define PF1             (*((volatile uint32_t *)0x40025008))
-void DelayWait10ms(uint32_t n);
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
+
+const int NUM_READINGS = 1000;
+const int ADC_RANGE = 4096;
 
 volatile uint32_t ADCvalue;
 // This debug function initializes Timer0A to request interrupts
@@ -66,37 +68,9 @@ void Timer0A_Init100HzInt(void){
 }
 
 // Arrays for data/time paris
-static int times[1000];
-static int data[1000];
+static int times[NUM_READINGS];
+static int data[NUM_READINGS];
 static int currentIndex = 0;
-
-void plot(void){
-	int max = data[0], min = data[0];
-	for(int i=1; i<sizeof(data); i++){//First pass: get range of x values
-		if(max < data[i])
-			max = data[i];
-		if(min > data[i])
-			min = data[i];
-	}
-	
-	int occurances[max-min];
-	int mode = 0;
-	for(int i=0; i<sizeof(data); i++){//Second pass: get # of occurances
-		occurances[data[i] - min] += 1;
-		if(occurances[data[i]] > mode)
-			mode = occurances[data[i]];
-	}
-	
-	ST7735_InitR(INITR_REDTAB);
-	ST7735_FillScreen(0);  // set screen to black
-  ST7735_SetCursor(0,0);
-	for(int i=0; i<sizeof(occurances); i++){//for each x value from min to max
-		int x = 128*(i)/(max-min);//Scale x value
-		int h = 160*occurances[i]/mode;//Scale bar height
-		int y = 160;
-		ST7735_DrawFastVLine(x, y, h, ST7735_BLUE);
-	}
-}
 
 void Timer0A_Handler(void){
   TIMER0_ICR_R = TIMER_ICR_TATOCINT;    // acknowledge timer0A timeout
@@ -105,20 +79,99 @@ void Timer0A_Handler(void){
   ADCvalue = ADC0_InSeq3();
 	
 	// Dump the data
-	if(currentIndex < 1000){
+	if(currentIndex < NUM_READINGS){
 		times[currentIndex] = TIMER1_TAR_R;
 		data[currentIndex] = ADCvalue;
 		currentIndex += 1;
-	}
-	if(currentIndex == 999) {//After all data has been taken
-		plot();//Draw pmf plot
 	}
 	
   PF2 ^= 0x04;                   // profile
 }
 
+/*
+Find the time jitter (highest time difference - smallest time difference)
+Assumes that the times array has been filled
+*/
+int findJitter(){
+	int smallestTimeDifference = (times[1] - times[0]);
+	int largestTimeDifference = (times[1] - times[0]);
+	
+	// Loop through the times array and find the smallest and largest time differences
+	int i = 0;
+	for(i = 1; i < NUM_READINGS; i++){
+		int difference = times[i] - times[i - 1];
+		
+		// Replace the smallest/largest time difference if necessary
+		if(difference < smallestTimeDifference) smallestTimeDifference = difference;
+		if(difference > largestTimeDifference) largestTimeDifference = difference;
+	}
+	
+	return largestTimeDifference - smallestTimeDifference;
+}
+
+/*
+Create a graph based on the values in data
+*/
+static int occurances[ADC_RANGE];
+void plot(void){
+	// The minimum and maximum ADC values read
+	int maxValue = data[0];
+	int minValue = maxValue;
+	
+	// First pass: get range of x values (Find the min and max adc value)
+	for(int i=1; i<NUM_READINGS; i++){
+		if(maxValue < data[i]) maxValue = data[i];
+		if(minValue > data[i]) minValue = data[i];
+	}
+	
+	// Now you only have to check from index [minValue, maxValue]
+	
+	// Second pass: get # of occurances for each value
+	// ADC value = index in the occurances array
+	int mode = 0;
+	for(int i=minValue; i<=maxValue; i++){
+		occurances[data[i]] += 1;
+		if(occurances[data[i]] > mode) mode = occurances[data[i]];
+	}
+	
+	//Third pass: get the range of y values (min and max occurences)
+	int minOccurences = occurances[minValue], maxOccurences = occurances[minValue];
+	for(int i=minValue; i<=maxValue; i++){
+		if(occurances[i] < minOccurences) minOccurences = occurances[i];
+		if(occurances[i] > maxOccurences) maxOccurences = occurances[i];
+	}
+		
+	// Screen initialization
+	ST7735_InitR(INITR_REDTAB);
+	ST7735_FillScreen(0);  // set screen to black
+  ST7735_SetCursor(0,0);
+	ST7735_OutString("ADC PMF");
+	ST7735_PlotClear(0, maxOccurences);	// maxOccurence is the maximum y value (scale the plot)
+	
+	// Loop over the occurences and plot their values
+	for(int i = minValue; i <= maxValue; i++){
+		ST7735_PlotBar(occurances[i]);
+		ST7735_PlotNext();
+	}
+}
+/*
+	ST7735_SetCursor();     
+	ST7735_OutUDec();     
+	ST7735_OutString();     
+	ST7735_PlotClear();     
+	ST7735_PlotBar();     
+	ST7735_PlotNext();
+	
+	for(int i=0; i<NUM_READINGS; i++){//for each x value from min to max
+		int x = 128*(i)/(max-min);//Scale x value
+		int h = 160*occurances[i]/mode;//Scale bar height
+		int y = 160;
+		ST7735_DrawFastVLine(x, y, h, ST7735_BLUE);
+	}
+}*/
 int main(void){
-  PLL_Init(Bus80MHz);                   // 80 MHz
+  PLL_Init(Bus8
+0MHz);                   // 80 MHz
 	Timer1_Init();												// Initialize the timer for keeping data/time pairs
   SYSCTL_RCGCGPIO_R |= 0x20;            // activate port F
   ADC0_InitSWTriggerSeq3_Ch9();         // allow time to finish activating
@@ -131,9 +184,16 @@ int main(void){
   GPIO_PORTF_AMSEL_R = 0;               // disable analog functionality on PF
   PF2 = 0;                      // turn off LED
   EnableInterrupts();
-  while(1){
+  while(currentIndex < NUM_READINGS){
     PF1 ^= 0x02;  // toggles when running in main
   }
+	
+	// Calculate the time jitter for all of the recordings
+	int timeJitter = findJitter();
+	
+	// Draw the graph for the data
+	plot();
+	
 }
 
 
