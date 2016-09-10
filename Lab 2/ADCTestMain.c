@@ -97,8 +97,7 @@ int findJitter(){
 	int largestTimeDifference = (times[1] - times[0]);
 	
 	// Loop through the times array and find the smallest and largest time differences
-	int i = 0;
-	for(i = 1; i < NUM_READINGS; i++){
+	for(int i = 1; i < NUM_READINGS; i++){
 		int difference = times[i] - times[i - 1];
 		
 		// Replace the smallest/largest time difference if necessary
@@ -119,20 +118,20 @@ void plot(void){
 	int minValue = maxValue;
 	
 	// First pass: get range of x values (Find the min and max adc value)
-	for(int i=1; i<NUM_READINGS; i++){
+	for(int i=0; i<NUM_READINGS; i++){
 		if(maxValue < data[i]) maxValue = data[i];
 		if(minValue > data[i]) minValue = data[i];
 	}
 	
-	// Now you only have to check from index [minValue, maxValue]
-	
 	// Second pass: get # of occurances for each value
 	// ADC value = index in the occurances array
 	int mode = 0;
-	for(int i=minValue; i<=maxValue; i++){
+	for(int i=0; i<=NUM_READINGS; i++){
 		occurances[data[i]] += 1;
 		if(occurances[data[i]] > mode) mode = occurances[data[i]];
 	}
+	
+	// Now you only have to check from index [minValue, maxValue]
 	
 	//Third pass: get the range of y values (min and max occurences)
 	int minOccurences = occurances[minValue], maxOccurences = occurances[minValue];
@@ -146,7 +145,14 @@ void plot(void){
 	ST7735_FillScreen(0);  // set screen to black
   ST7735_SetCursor(0,0);
 	ST7735_OutString("ADC PMF");
-	ST7735_PlotClear(0, maxOccurences);	// maxOccurence is the maximum y value (scale the plot)
+	ST7735_PlotClear(0, mode);	// maxOccurence is the maximum y value (scale the plot)
+	
+	// Set the starting x point of the plot to make the graph appear in the middle
+	int plotWidth = maxValue - minValue;
+	int shiftRight = (127 - plotWidth) / 2;	// How much to shift the graph over right
+	for(int i = 0; i < shiftRight; i++){
+		ST7735_PlotNext();	// Shift the plot over
+	}
 	
 	// Loop over the occurences and plot their values
 	for(int i = minValue; i <= maxValue; i++){
@@ -170,8 +176,7 @@ void plot(void){
 	}
 }*/
 int main(void){
-  PLL_Init(Bus8
-0MHz);                   // 80 MHz
+  PLL_Init(Bus80MHz);                   // 80 MHz
 	Timer1_Init();												// Initialize the timer for keeping data/time pairs
   SYSCTL_RCGCGPIO_R |= 0x20;            // activate port F
   ADC0_InitSWTriggerSeq3_Ch9();         // allow time to finish activating
@@ -185,7 +190,10 @@ int main(void){
   PF2 = 0;                      // turn off LED
   EnableInterrupts();
   while(currentIndex < NUM_READINGS){
-    PF1 ^= 0x02;  // toggles when running in main
+  //while(1){  
+		//PF1 ^= 0x02;  // toggles when running in main
+		PF1 = (PF1*12345678)/1234567+0x02;  // this line causes jitter
+		//GPIO_PORTF_DATA_R ^= 0x02;  // toggles when running in main
   }
 	
 	// Calculate the time jitter for all of the recordings
