@@ -175,6 +175,28 @@ void plot(void){
 		ST7735_DrawFastVLine(x, y, h, ST7735_BLUE);
 	}
 }*/
+
+void partG(void){
+// Screen initialization
+	ST7735_InitR(INITR_REDTAB);
+	ST7735_FillScreen(0);  // set screen to black
+  ST7735_SetCursor(0,0);
+	ST7735_Line(64,64,64,0,ST7735_YELLOW);
+	ST7735_Line(64,64,96,0,ST7735_YELLOW);
+	ST7735_Line(64,64,127,0,ST7735_YELLOW);
+	ST7735_Line(64,64,127,32,ST7735_YELLOW);
+	ST7735_Line(64,64,127,64,ST7735_BLUE);
+
+	ST7735_Line(64,64,96,127,ST7735_BLUE);
+	ST7735_Line(64,64,64,127,ST7735_BLUE);
+	ST7735_Line(64,64,32,127,ST7735_BLUE);
+
+	ST7735_Line(64,64,0,64,ST7735_BLUE);
+	ST7735_Line(64,64,0,32,ST7735_YELLOW);
+	ST7735_Line(64,64,0,0,ST7735_YELLOW);
+	ST7735_Line(64,64,32,0,ST7735_YELLOW);
+}
+
 int main(void){
   PLL_Init(Bus80MHz);                   // 80 MHz
 	Timer1_Init();												// Initialize the timer for keeping data/time pairs
@@ -187,7 +209,7 @@ int main(void){
                                         // configure PF2 as GPIO
   GPIO_PORTF_PCTL_R = (GPIO_PORTF_PCTL_R&0xFFFFF00F)+0x00000000;
   GPIO_PORTF_AMSEL_R = 0;               // disable analog functionality on PF
-  PF2 = 0;                      // turn off LED
+  PF2 = 0;	// turn off LED
   EnableInterrupts();
   while(currentIndex < NUM_READINGS){
   //while(1){  

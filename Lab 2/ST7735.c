@@ -90,6 +90,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <math.h>
 #include "ST7735.h"
 #include "../inc/tm4c123gh6pm.h"
 
@@ -1610,3 +1611,46 @@ void Output_On(void){ // Turns on the display
 void Output_Color(uint32_t newColor){ // Set color of future output
   ST7735_SetTextColor(newColor);
 }
+
+//*************ST7735_Line********************************************
+//  Draws one line on the ST7735 color LCD
+//  Inputs: (x1,y1) is the start point
+//          (x2,y2) is the end point
+// x1,x2 arehorizontal positions, columns from the left edge
+//               must be less than 128
+//               0 is on the left, 126 is near the right
+// y1,y2 arevertical positions, rows from the top edge
+//               must be less than 160
+//               159 is near the wires, 0 is the side opposite the wires
+//        color 16-bit color, which can be produced by ST7735_Color565() 
+// Output: none
+void ST7735_Line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color){	
+	uint16_t d1,d2,s1,s2;
+	double s;
+	uint8_t dom = 0;
+	if(abs(x2-x1) >= abs(y2-y1)){//X is dominant, Y is secondary
+		d1 = x1;
+		d2 = x2;
+		s1 = y1;
+		s2 = y2;
+		s = y1;
+	} else {//X is secondary, Y is dominant
+		d1 = y1;
+		d2 = y2;
+		s1 = x1;
+		s2 = x2;
+		s = x1;
+		dom = 1;//Flip dominance
+	}
+	
+	while(d1 != d2 || s1 != s2){
+		if(dom == 0)
+			ST7735_DrawPixel(d1, s1, color);
+		else
+			ST7735_DrawPixel(s1, d1, color);
+		s += ((double)(s2-s1))/((double)abs(d2-d1));//increment s1 by the slope
+		s1 = round(s);
+		d1 += (d2-d1)/abs(d2-d1);//increment d1 by one in the direction of d2
+	}
+	ST7735_DrawPixel(x2, y2, color);//Draw the last pixel
+};
