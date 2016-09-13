@@ -30,6 +30,8 @@
 #include "../inc/tm4c123gh6pm.h"
 #include "PLL.h"
 #include "Timer1.h"
+#include "Timer2.h"
+#include "Timer3.h"
 #include "ST7735.h"
 
 #define PF2             (*((volatile uint32_t *)0x40025010))
@@ -44,6 +46,7 @@ const int NUM_READINGS = 1000;
 const int ADC_RANGE = 4096;
 
 volatile uint32_t ADCvalue;
+
 // This debug function initializes Timer0A to request interrupts
 // at a 100 Hz frequency.  It is similar to FreqMeasure.c.
 void Timer0A_Init100HzInt(void){
@@ -144,7 +147,7 @@ void plot(void){
 	ST7735_InitR(INITR_REDTAB);
 	ST7735_FillScreen(0);  // set screen to black
   ST7735_SetCursor(0,0);
-	ST7735_OutString("ADC PMF");
+	ST7735_OutString("Lab 2 - ADC PMF");
 	ST7735_PlotClear(0, mode);	// maxOccurence is the maximum y value (scale the plot)
 	
 	// Set the starting x point of the plot to make the graph appear in the middle
@@ -176,6 +179,16 @@ void plot(void){
 	}
 }*/
 
+/*
+Empty method for the Timer2 and Timer3 interrupts
+*/
+void interruptFunction(void){
+	
+}
+
+/*
+Method for testing the line function
+*/
 void partG(void){
 // Screen initialization
 	ST7735_InitR(INITR_REDTAB);
@@ -200,6 +213,8 @@ void partG(void){
 int main(void){
   PLL_Init(Bus80MHz);                   // 80 MHz
 	Timer1_Init();												// Initialize the timer for keeping data/time pairs
+	//Timer2_Init(&interruptFunction, 7999);
+	//Timer3_Init(&interruptFunction, 7999);
   SYSCTL_RCGCGPIO_R |= 0x20;            // activate port F
   ADC0_InitSWTriggerSeq3_Ch9();         // allow time to finish activating
   Timer0A_Init100HzInt();               // set up Timer0A for 100 Hz interrupts
@@ -209,12 +224,16 @@ int main(void){
                                         // configure PF2 as GPIO
   GPIO_PORTF_PCTL_R = (GPIO_PORTF_PCTL_R&0xFFFFF00F)+0x00000000;
   GPIO_PORTF_AMSEL_R = 0;               // disable analog functionality on PF
-  PF2 = 0;	// turn off LED
+  PF2 = 0;                      // turn off LED
+	ADC0_SAC_R = (ADC0_SAC_R & 0xFFFFFFF8) | ADC_SAC_AVG_OFF;	// Sampling - NONE
+	//ADC0_SAC_R = (ADC0_SAC_R & 0xFFFFFFF8) | ADC_SAC_AVG_4X;	// Sampling - 4x
+	//ADC0_SAC_R = (ADC0_SAC_R & 0xFFFFFFF8) | ADC_SAC_AVG_16X;	// Sampling - 16x
+	//ADC0_SAC_R = (ADC0_SAC_R & 0xFFFFFFF8) | ADC_SAC_AVG_64X;	// Sampling - 64x
   EnableInterrupts();
   while(currentIndex < NUM_READINGS){
   //while(1){  
-		//PF1 ^= 0x02;  // toggles when running in main
-		PF1 = (PF1*12345678)/1234567+0x02;  // this line causes jitter
+		PF1 ^= 0x02;  // toggles when running in main
+		//PF1 = (PF1*12345678)/1234567+0x02;  // this line causes jitter
 		//GPIO_PORTF_DATA_R ^= 0x02;  // toggles when running in main
   }
 	

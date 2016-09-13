@@ -90,6 +90,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <math.h>
 #include "ST7735.h"
 #include "../inc/tm4c123gh6pm.h"

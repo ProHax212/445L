@@ -455,4 +455,10 @@ void Output_On(void);
 // Output: none
 void Output_Color(uint32_t newColor);
 
+// ************** ST7735_Line **************/
+// Draws a line on the display
+// (x1, y1) (x2, y2) are the starting and stopping points of the line
+// Color is the color of the line
+void ST7735_Line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
+
 #endif
