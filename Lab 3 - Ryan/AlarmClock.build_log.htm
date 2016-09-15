@@ -3,8 +3,8 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
-C:\Keil\ValvanoWareTM4C123\Lab 3 - Ryan\AlarmClock.uvproj
-Project File Date:  09/14/2016
+C:\Users\Connor\Desktop\445L\Lab 3 - Ryan\AlarmClock.uvproj
+Project File Date:  09/15/2016
 
 <h2>Output:</h2>
 Rebuild target 'AlarmClock'
@@ -12,20 +12,59 @@ assembling startup.s...
 compiling PLL.c...
 compiling ST7735.c...
 compiling AlarmClockTestMain.c...
+AlarmClockTestMain.c(23): warning:  #223-D: function "LCD_Init" declared implicitly
+        LCD_Init();
+AlarmClockTestMain.c: 1 warning, 0 errors
 compiling Timer1.c...
 compiling KeepTime.c...
+KeepTime.c(13): warning:  #550-D: variable "currentAlarm" was set but never used
+  static int currentAlarm;
+KeepTime.c: 1 warning, 0 errors
 compiling Speaker.c...
 compiling Timer2.c...
+compiling LCDInterface.c...
+compiling Switch.c...
 linking...
-Program Size: Code=1332 RO-data=32 RW-data=12 ZI-data=1124  
-".\AlarmClock.axf" - 0 Error(s), 0 Warning(s).
-information to list image symbols.
-Not enough information to list the image map.
-Finished: 2 information, 0 warning and 1 error messages.
-".\AlarmClock.axf" - 1 Error(s), 0 Warning(s).
-Target not created
-AlarmClock.axf" 
+Program Size: Code=9652 RO-data=2340 RW-data=72 ZI-data=1120  
+".\AlarmClock.axf" - 0 Error(s), 2 Warning(s).
+Load "C:\\Users\\Connor\\Desktop\\445L\\Lab 3 - Ryan\\AlarmClock.axf" 
 Connecting: Mode=JTAG, Speed=1000000Hz
 Erase Done.
 Programming Done.
 Verify OK.
+</pre>
+</body>
+</html>
+mer1.c...
+compiling KeepTime.c...
+KeepTime.c(13): warning:  #550-D: variable "currentAlarm" was set but never used
+  static int currentAlarm;
+KeepTime.c: 1 warning, 0 errors
+compiling Speaker.c...
+compiling Timer2.c...
+compiling LCDInterface.c...
+compiling Switch.c...
+".\AlarmClock.axf" - 4 Error(s), 2 Warning(s).
+Target not created
+" is undefined
+                Update_Clock(timeHour, timeMin, alarmHour, alarmMin);
+AlarmClockTestMain.c(37): error:  #20: identifier "alarmHour" is undefined
+                Update_Clock(timeHour, timeMin, alarmHour, alarmMin);
+AlarmClockTestMain.c(37): error:  #20: identifier "alarmMin" is undefined
+                Update_Clock(timeHour, timeMin, alarmHour, alarmMin);
+KeepTime.c: 1 warning, 4 errors
+compiling Speaker.c...
+compiling Timer2.c...
+compiling LCDInterface.c...
+compiling Switch.c...
+".\AlarmClock.axf" - 8 Error(s), 2 Warning(s).
+Target not created
+ne
+  }
+LCDInterface.c: 2 warnings, 10 errors
+".\AlarmClock.axf" - 10 Error(s), 4 Warning(s).
+Target not created
+CDInterface.c(152): error: At end of source:  #67: expected a "}"
+LCDInterface.c: 2 warnings, 12 errors
+".\AlarmClock.axf" - 12 Error(s), 4 Warning(s).
+Target not created

@@ -1610,3 +1610,30 @@ void Output_On(void){ // Turns on the display
 void Output_Color(uint32_t newColor){ // Set color of future output
   ST7735_SetTextColor(newColor);
 }
+//*************ST7735_GetSlope********************************************
+double ST7735_GetSlope(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2){
+	return (y1-y2)/(x1-x2);
+}
+
+//*************ST7735_Line********************************************
+//  Draws one line on the ST7735 color LCD
+//  Inputs: (x1,y1) is the start point
+//          (x2,y2) is the end point
+// x1,x2 arehorizontal positions, columns from the left edge
+//               must be less than 128
+//               0 is on the left, 126 is near the right
+// y1,y2 arevertical positions, rows from the top edge
+//               must be less than 160
+//               159 is near the wires, 0 is the side opposite the wires
+//        color 16-bit color, which can be produced by ST7735_Color565() 
+// Output: none
+void ST7735_Line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color){
+	double y = y1;
+	while((x1 != x2) || (y1 != y2)){
+		ST7735_DrawPixel(x1, y1, color);
+		y += (y2-y)/abs(x2-x1);//increment y1 by the slope
+		y1 = (int)y;
+		x1 += (x2-x1)/abs(x2-x1);//increment x1 by one in the direction of x2
+	}
+	ST7735_DrawPixel(x2, y2, color);//Draw the last pixel
+};

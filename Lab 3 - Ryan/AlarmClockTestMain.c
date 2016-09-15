@@ -8,6 +8,8 @@
 #include "Timer1.h"
 #include "ST7735.h"
 #include "KeepTime.h"
+#include "LCDInterface.h"
+#include "Switch.h"
 	
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -15,42 +17,24 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
-/*
-Method for testing the line function
-*/
-void testDrawLine(void){
-// Screen initialization
-	ST7735_InitR(INITR_REDTAB);
-	ST7735_FillScreen(0);  // set screen to black
-  ST7735_SetCursor(0,0);
-	ST7735_Line(64,64,64,0,ST7735_YELLOW);
-	ST7735_Line(64,64,96,0,ST7735_YELLOW);
-	ST7735_Line(64,64,127,0,ST7735_YELLOW);
-	ST7735_Line(64,64,127,32,ST7735_YELLOW);
-	ST7735_Line(64,64,127,64,ST7735_BLUE);
-
-	ST7735_Line(64,64,96,127,ST7735_BLUE);
-	ST7735_Line(64,64,64,127,ST7735_BLUE);
-	ST7735_Line(64,64,32,127,ST7735_BLUE);
-
-	ST7735_Line(64,64,0,64,ST7735_BLUE);
-	ST7735_Line(64,64,0,32,ST7735_YELLOW);
-	ST7735_Line(64,64,0,0,ST7735_YELLOW);
-	ST7735_Line(64,64,32,0,ST7735_YELLOW);
-}
-
 int main(void){
   PLL_Init(Bus80MHz);	// 80 MHz
 	
+	LCD_Init();
 	KeepTime_Init();
-	
   EnableInterrupts();
+	PortF_Init();
 	
 	while(1){
-		
+		Update_Clock(getHours(currentTime), getMinutes(currentTime), getHours(currentAlarm), getMinutes(currentAlarm));
+		if(Pause() == 0)
+			currentTime = incrementTime(currentTime);
+		else
+			currentAlarm = incrementTime(currentAlarm);
 	}
-	//testDrawLine();
-	
 }
+
+
+
 
 

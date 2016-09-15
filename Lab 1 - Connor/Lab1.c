@@ -101,6 +101,17 @@ int main(void){uint32_t i;
   while(1){
     ST7735_FillScreen(0);  // set screen to black
     ST7735_SetCursor(0,0);
+		int deg = 0;
+		uint16_t x2 = 64;
+		uint16_t y2 = 16;
+		while(1<2){
+			ST7735_FillScreen(0);
+			ST7735_Line(64, 70, x2, y2, ST7735_BLUE);
+			deg++;
+			x2 = 64*cos(deg*(3.14/180));
+			y2 = 64*sin(deg*(3.14/180)) + 16;
+		}
+		Pause();
     printf("Lab 1\rST7735_sDecOut3\r");
     for(i=0; i<13; i++){
       ST7735_sDecOut3(outTests1[i].InNumber);  // your solution
