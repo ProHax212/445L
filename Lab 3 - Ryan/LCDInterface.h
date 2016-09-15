@@ -8,4 +8,4 @@ void Update_Clock(uint8_t timeHour, uint8_t timeMinute, uint8_t alarmHour, uint8
 
 void Draw_Face(void);
 
-void LCDInit(void);
+void LCD_Init(void);

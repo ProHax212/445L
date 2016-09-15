@@ -5,56 +5,64 @@ Module to keep the current time
 #include <stdint.h>
 #include "../inc/tm4c123gh6pm.h"
 #include "Timer1.h"
+#include "Heartbeat.h"
 
+// Masks to get the hour or minute part of the encoded time
 #define MINUTE_MASK 0x3F
 #define HOUR_MASK 0x7C0
 
 static int currentTime;
 static int currentAlarm;
 
+static int currentSeconds;	// Not part of the encoded time.  Used only by this file to determine when to increment the minutes
+
 //Input: time format Ouput: minute
-int getMinutes(int t){
-	return t & MINUTE_MASK;
+int getMinutes(){
+	return currentTime & MINUTE_MASK;
 }
 
 //Input: time format Output: hours
-int getHours(int t){
-	return (t & HOUR_MASK) >> 6;
+int getHours(){
+	return (currentTime & HOUR_MASK) >> 6;
 }
 
 //Input: hour, minute Output: time format
-int formatTime(int h, int m){
-	return (h << 6) + m;
+void formatTime(int h, int m){
+	currentTime = (h << 6) + m;
 }
 
-//Checks that a time for overflow (no min > 59 or hour > 23)
-int checkTime(int t){
-	int minutes = getMinutes(t);
-	int hours = getHours(t);
+// Increment the time by 1 second
+void incrementTime(){
+	int minutes = getMinutes();
+	int hours = getHours();
+	//currentSeconds += 1;
+	 currentSeconds += 60;	// Use this for debugging - makes each second a minute
+	
+	// Check to increment minutes
+	if(currentSeconds >= 60){
+		minutes += 1;
+		currentSeconds = 0;
+	}
 	if(minutes >= 60){//Check for hour reset
 		hours += 1;
-		minutes %= 60;
+		minutes = 0;
 	}
-	if(hours >= 24)//Check for day reset
-		hours %= 24;
-	return formatTime(hours, minutes);
+	if(hours >= 24) hours = 0;	//Check for day reset
+	
+	formatTime(hours, minutes);
 }
 
-//Adds 1 minute to either time or alarm
-int incrementTime(int t){
-	t += 1;
-	return checkTime(t);
-}
-
-// Handler for the timer - Increment the time by 1 minute
+// Handler for the timer - Increment the time by 1 second
 void Timer1_Handler(void){
-	currentTime = incrementTime(currentTime);
+	Toggle_Heartbeat();
+	incrementTime();
 }
 
 // Initialize the timer to start counting time
-// Assumption: The bus clock speed is 80MHz
+// Assumption: The bus clock speed is 80MHz (for the period of Timer 1)
 void KeepTime_Init(void){
-	currentTime = formatTime(23, 59);
-	currentAlarm = formatTime(0, 0);
+	currentSeconds = 0;
+	formatTime(23, 59);
+	currentAlarm = 0;
 	Timer1_Init(&Timer1_Handler, 80000000);
 }
