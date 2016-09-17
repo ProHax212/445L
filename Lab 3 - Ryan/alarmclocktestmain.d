@@ -10,3 +10,4 @@
 .\alarmclocktestmain.o: Switch.h
 .\alarmclocktestmain.o: PLL.h
 .\alarmclocktestmain.o: Heartbeat.h
+.\alarmclocktestmain.o: Speaker.h

@@ -230,8 +230,8 @@ int main(void){
 	//ADC0_SAC_R = (ADC0_SAC_R & 0xFFFFFFF8) | ADC_SAC_AVG_16X;	// Sampling - 16x
 	//ADC0_SAC_R = (ADC0_SAC_R & 0xFFFFFFF8) | ADC_SAC_AVG_64X;	// Sampling - 64x
   EnableInterrupts();
-  while(currentIndex < NUM_READINGS){
-  //while(1){  
+  //while(currentIndex < NUM_READINGS){
+  while(1){  
 		PF1 ^= 0x02;  // toggles when running in main
 		//PF1 = (PF1*12345678)/1234567+0x02;  // this line causes jitter
 		//GPIO_PORTF_DATA_R ^= 0x02;  // toggles when running in main

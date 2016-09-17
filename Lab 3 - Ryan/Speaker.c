@@ -2,8 +2,10 @@
 #include "../inc/tm4c123gh6pm.h"
 #include "Timer2.h"
 
+int static alarmOn;
+
 void togglePB2(void){
-	GPIO_PORTB_DATA_R ^= 0x04;	// Toggle PB2
+	if(alarmOn) GPIO_PORTB_DATA_R ^= 0x04;	// Toggle PB2
 }
 
 // Initialize PB2 as a digital output for the speaker
@@ -21,9 +23,9 @@ void Speaker_Init(unsigned long period){
 }
 
 void StartAlarm(void){
-	TIMER2_CTL_R = 0x00000001;    // 10) enable timer2A
+	alarmOn = 1;
 }
 
 void StopAlarm(void){
-	TIMER2_CTL_R = 0x00000000;    // 10) enable timer2A
+	alarmOn = 0;
 }

@@ -3,36 +3,34 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
-C:\Keil\ValvanoWareTM4C123\Lab 2\ADCSWTrigger.uvproj
+C:\Users\ryan_comer\Desktop\Fall 2016\EE445L Labs\Lab 2\ADCSWTrigger.uvproj
 Project File Date:  09/07/2016
 
 <h2>Output:</h2>
 Rebuild target 'ADCSWTrigger'
 assembling startup.s...
 compiling ADCSWTrigger.c...
+ADCSWTrigger.c(25): error:  #5: cannot open source input file "../inc/tm4c123gh6pm.h": No such file or directory
+  #include "../inc/tm4c123gh6pm.h"
+ADCSWTrigger.c: 0 warnings, 1 error
 compiling ADCTestMain.c...
+ADCTestMain.c(30): error:  #5: cannot open source input file "../inc/tm4c123gh6pm.h": No such file or directory
+  #include "../inc/tm4c123gh6pm.h"
+ADCTestMain.c: 0 warnings, 1 error
 compiling PLL.c...
+PLL.c(26): error:  #5: cannot open source input file "../inc/tm4c123gh6pm.h": No such file or directory
+  #include "../inc/tm4c123gh6pm.h"
+PLL.c: 0 warnings, 1 error
 compiling Timer1.c...
+Timer1.c(24): error:  #5: cannot open source input file "../inc/tm4c123gh6pm.h": No such file or directory
+  #include "../inc/tm4c123gh6pm.h"
+Timer1.c: 0 warnings, 1 error
 compiling ST7735.c...
-compiling Timer2.c...
-compiling Timer3.c...
-linking...
-Program Size: Code=4368 RO-data=2052 RW-data=64 ZI-data=25504  
-".\ADCSWTrigger.axf" - 0 Error(s), 0 Warning(s).
-Load "C:\\Keil\\ValvanoWareTM4C123\\Lab 2\\ADCSWTrigger.axf" 
-Connecting: Mode=JTAG, Speed=1000000Hz
-Erase Done.
-Programming Done.
-Verify OK.
-gger.axf" - 2 Error(s), 0 Warning(s).
+ST7735.c(96): error:  #5: cannot open source input file "../inc/tm4c123gh6pm.h": No such file or directory
+  #include "../inc/tm4c123gh6pm.h"
+ST7735.c: 0 warnings, 1 error
+".\ADCSWTrigger.axf" - 5 Error(s), 0 Warning(s).
 Target not created
-ing PLL.c...
-compiling Timer1.c...
-compiling ST7735.c...
-ST7735.h(458): error:  #169: expected a declaration
-  / ************** ST7735_Line **************/
-ST7735.h(462): warning:  #12-D: parsing restarts here after previous syntax error
-  void ST7735_Line(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t color);
-ST7735.c: 1 warning, 1 error
-".\ADCSWTrigger.axf" - 2 Error(s), 3 Warning(s).
-Target not created
+</pre>
+</body>
+</html>

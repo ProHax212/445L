@@ -3,3 +3,4 @@
 .\keeptime.o: ../inc/tm4c123gh6pm.h
 .\keeptime.o: Timer1.h
 .\keeptime.o: Heartbeat.h
+.\keeptime.o: Speaker.h

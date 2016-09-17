@@ -11,6 +11,7 @@
 #include "LCDInterface.h"
 #include "Switch.h"
 #include "Heartbeat.h"
+#include "Speaker.h"
 	
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -18,24 +19,30 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
+// Update the clock with the new time
+void updateClock(){
+	int minutes = Get_Minutes(), hours = Get_Hours(), alarmMinutes = Get_Alarm_Minutes(), alarmHours = Get_Alarm_Hours();
+	Update_Clock(hours, minutes, alarmHours, alarmMinutes);
+}
+
 int main(void){
   PLL_Init(Bus80MHz);	// Initialize clock speed to 80MHz
 	
 	// Initialization
 	LCD_Init();
+	Board_Init();
 	KeepTime_Init();
 	PortF_Init();
 	Heartbeat_Init();
+	Speaker_Init(305775);
 	
 	EnableInterrupts();
 	
 	// Main loop
-	while(1){	
-		Update_Clock(getHours(currentTime), getMinutes(currentTime), getHours(currentAlarm), getMinutes(currentAlarm));
-		if(Pause() == 0)
-			currentTime = incrementTime(currentTime);
-		else
-			currentAlarm = incrementTime(currentAlarm);
+	while(1){
+		Check_Inputs();
+		updateClock();
+		Check_Alarm();
 	}
 }
 

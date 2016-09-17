@@ -44,6 +44,7 @@ void Timer2_Init(void(*task)(void), unsigned long period){
 // interrupts enabled in the main program after all devices initialized
 // vector number 39, interrupt number 23
   NVIC_EN0_R = 1<<23;           // 9) enable IRQ 23 in NVIC
+	TIMER2_CTL_R = 0x00000001;    // 10) enable TIMER1A
 }
 
 void Timer2A_Handler(void){
