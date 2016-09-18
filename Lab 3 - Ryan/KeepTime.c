@@ -7,6 +7,9 @@ Module to keep the current time
 #include "Timer1.h"
 #include "Heartbeat.h"
 #include "Speaker.h"
+#include "LCDInterface.h"
+#include "Switch.h"
+#include "AlarmClockTestMain.h"
 
 // Masks to get the hour or minute part of the encoded time
 #define MINUTE_MASK 0x3F
@@ -14,83 +17,99 @@ Module to keep the current time
 
 static int currentTime;
 static int currentAlarm;
-static int currentSeconds;	// Not part of the encoded time.  Used only by this file to determine when to increment the minutes
+static int secondsCounter;	// Not part of the encoded time.  Used only by this file to determine when to increment the minutes
 
 static int alarmHit;	// 0 - alarm off, 1 - alarm on
 
-//Input: time format Ouput: minute
-int Get_Minutes(){
-	return currentTime & MINUTE_MASK;
+
+// Output: time format
+int Get_Time(){
+	return currentTime;
 }
 
-//Input: time format Output: hours
-int Get_Hours(){
-	return (currentTime & HOUR_MASK) >> 6;
+//Output: time format
+int Get_Alarm(){
+	return currentAlarm;
 }
 
-int Get_Alarm_Minutes(){
-	return currentAlarm & MINUTE_MASK;
+//Input: time format
+//Output: minutes
+int Get_Minutes(int time){
+	return time & MINUTE_MASK;
 }
 
-int Get_Alarm_Hours(){
-	return (currentAlarm & HOUR_MASK) >> 6;
+//Input: time format
+//Output: hours
+int Get_Hours(int time){
+	return (time & HOUR_MASK) >> 6;
 }
 
-void Set_Time(int h, int m){
-	currentTime = ((h << 6) & HOUR_MASK) + m;
+//Input: hours, minutes
+//Ouput: time format
+int Get_Time_Format(int hours, int minutes){
+	return (hours << 6) + minutes;
 }
 
-void Set_Alarm(int h, int m){
-	currentAlarm = ((h << 6) & HOUR_MASK) + m;
+//Input: time format
+void Set_Time(int time){
+	currentTime = time;
 }
 
-//Input: hour, minute Output: time format
-void formatTime(int h, int m){
-	currentTime = (h << 6) + m;
+//Input: time format
+void Set_Alarm(int alarm){
+	currentAlarm = alarm;
+}
+
+void Format_Time(int h, int m){
+	currentTime = Get_Time_Format(h, m);
+}
+
+void Format_Alarm(int h, int m){
+	currentAlarm = Get_Time_Format(h, m);
 }
 
 // Start the alarm ISR if the alarm equals the time
 void Check_Alarm(){
 	if(alarmHit){
-		StartAlarm();
+		Start_Alarm();
 	}
 }
 
-
-// Increment the time by 1 second
-void incrementTime(){
-	int minutes = Get_Minutes();
-	int hours = Get_Hours();
-	//currentSeconds += 1;
-	 currentSeconds += 60;	// Use this for debugging - makes each second a minute
+// Input: time, seconds
+// Output: time + seconds
+int incrementTime(int t, int s){
+	int minutes = Get_Minutes(t);
+	int hours = Get_Hours(t);
 	
-	// Check to increment minutes
-	if(currentSeconds >= 60){
-		minutes += 1;
-		currentSeconds = 0;
+	if(s >= 60){//Increment minutes
+		minutes += s/60;
 	}
 	if(minutes >= 60){//Check for hour reset
-		hours += 1;
-		minutes = 0;
+		hours += minutes/60;
+		minutes %= 60;
 	}
-	if(hours >= 24) hours = 0;	//Check for day reset
+	if(hours >= 24) hours %= 24;	//Check for day reset
 	
-	formatTime(hours, minutes);
-	
-	if(currentTime == currentAlarm) alarmHit = 1;	// Check the alarm - set value if hit
+	return Get_Time_Format(hours, minutes);
 }
 
-// Handler for the timer - Increment the time by 1 second
+// Handler for the timer - Increment the time each second
 void Timer1_Handler(void){
 	Toggle_Heartbeat();
-	incrementTime();
+	secondsCounter += 60;//60 for debugging to make 1s = 1m
+	if(secondsCounter >= 60){
+		currentTime = incrementTime(currentTime, secondsCounter);//Increment time by seconds
+		Clock_Tick(currentTime, currentAlarm);
+		secondsCounter %= 60;
+	}
+	if(currentTime == currentAlarm) alarmHit = 1;	// Check the alarm - set value if hit
 }
 
 // Initialize the timer to start counting time
 // Assumption: The bus clock speed is 80MHz (for the period of Timer 1)
-void KeepTime_Init(void){
-	currentSeconds = 0;
-	formatTime(23, 59);
-	currentAlarm = 0x03;
+void KeepTime_Init(int timeHours, int timeMinutes, int alarmHours, int alarmMinutes){
+	secondsCounter = 0;
+	Format_Time(timeHours, timeMinutes);
+	Format_Alarm(alarmHours, alarmMinutes);
 	Timer1_Init(&Timer1_Handler, 79999999);
 }

@@ -9,9 +9,9 @@
 #include "ST7735.h"
 #include "KeepTime.h"
 #include "LCDInterface.h"
-#include "Switch.h"
 #include "Heartbeat.h"
 #include "Speaker.h"
+#include "Switch.h"
 	
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -19,20 +19,55 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
-// Update the clock with the new time
-void updateClock(){
-	int minutes = Get_Minutes(), hours = Get_Hours(), alarmMinutes = Get_Alarm_Minutes(), alarmHours = Get_Alarm_Hours();
-	Update_Clock(hours, minutes, alarmHours, alarmMinutes);
+static int mode;
+static int savedTime;
+static int savedAlarm;
+
+// Input: mode
+void Set_Mode(int m){
+	mode = m;
+	if(mode == 0){
+		Set_Time(savedTime);
+		Set_Alarm(savedAlarm);
+	} else {
+		savedTime = Get_Time();
+		savedAlarm = Get_Alarm();
+	}
+}
+
+// Updates the time if in 'Normal' mode (mode 0)
+void Clock_Tick(int time, int alarm){
+	if(mode == 0){
+		LCD_Refresh_Time(Get_Hours(time), Get_Minutes(time));
+	}
+}
+
+// Updates the time in 'Time Set' mode (mode 1)
+void Change_Clock_Time(int s){
+	savedTime = incrementTime(savedTime, s);
+	LCD_Refresh_Time(Get_Hours(savedTime), Get_Minutes(savedTime));
+}
+
+// Updates the alarm in 'Alarm Set mode (mode 2)
+void Change_Clock_Alarm(int s){
+	savedAlarm = incrementTime(savedAlarm, s);
+	LCD_Refresh_Alarm(Get_Hours(savedAlarm), Get_Minutes(savedAlarm));
 }
 
 int main(void){
   PLL_Init(Bus80MHz);	// Initialize clock speed to 80MHz
 	
+	mode = 0;
+	
+	uint8_t timeHours = 0;
+	uint8_t timeMinutes = 0;
+	uint8_t alarmHours = 1;
+	uint8_t alarmMinutes = 0;
+	
 	// Initialization
-	LCD_Init();
-	Board_Init();
-	KeepTime_Init();
-	PortF_Init();
+	LCD_Init(timeHours, timeMinutes, alarmHours, alarmMinutes);
+	Switch_Init();
+	KeepTime_Init(timeHours, timeMinutes, alarmHours, alarmMinutes);
 	Heartbeat_Init();
 	Speaker_Init(305775);
 	
@@ -40,13 +75,7 @@ int main(void){
 	
 	// Main loop
 	while(1){
-		Check_Inputs();
-		updateClock();
+		Check_Inputs(mode);
 		Check_Alarm();
 	}
 }
-
-
-
-
-

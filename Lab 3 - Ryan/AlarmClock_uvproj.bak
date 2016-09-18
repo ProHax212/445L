@@ -460,6 +460,11 @@
               <FileType>5</FileType>
               <FilePath>.\KeepTime.h</FilePath>
             </File>
+            <File>
+              <FileName>Heartbeat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Heartbeat.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

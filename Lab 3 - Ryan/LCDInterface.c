@@ -9,7 +9,7 @@
 #define PI 3.14159265
 
 static const uint8_t HOUR_HAND_LENGTH = 35;
-static const uint8_t MINUTES_HAND_LENGTH = 45;
+static const uint8_t MINUTE_HAND_LENGTH = 45;
 const unsigned short WATCH_FACE[] = {
  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
@@ -1037,6 +1037,9 @@ const unsigned short WATCH_FACE[] = {
  0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,
 };
 
+// Converts int to string
+// Input: number
+// Output: string equivalent
 char * uint8ToString(uint8_t num){
 	static char ret[4];
 	uint8_t c = 0;
@@ -1051,42 +1054,61 @@ char * uint8ToString(uint8_t num){
 	return ret;
 }
 
-void Draw_Hand(uint16_t deg, uint16_t length){
+// Draws a single clock hand to the screen
+// Input: hand degrees, hand length
+void LCD_Draw_Hand(uint16_t deg, uint16_t length){
 	uint8_t x = 64 + (uint8_t)length*sin(deg*PI/180.0);
 	uint8_t y = 96 - (uint8_t)length*cos(deg*PI/180.0);
 	ST7735_Line(64, 96, x, y, ST7735_WHITE);
 }
 
-void Draw_Face(){
+// Draws clock face background
+void LCD_Draw_Face(){
 	//ST7735_DrawBitmap(0, 32, WATCH_FACE, 128, 128);//Need license to draw image this big
 }
 
-void Draw_Digital(uint8_t timeHour, uint8_t timeMinute, uint8_t alarmHour, uint8_t alarmMinute){
+// Clears analog clock hands
+void LCD_Clear_Hands(){
+	ST7735_FillRect(64-MINUTE_HAND_LENGTH, 96-MINUTE_HAND_LENGTH, MINUTE_HAND_LENGTH*2 + 1, MINUTE_HAND_LENGTH*2 + 1, ST7735_BLACK);
+}
+
+// Clears hands and displays analog time
+void LCD_Refresh_Analog(uint8_t hour, uint8_t minute){
+	LCD_Clear_Hands();
+	uint16_t hDeg = (hour*30 + (minute>>1))%360;
+	uint16_t mDeg = (minute*6)%360;
+	LCD_Draw_Hand(hDeg, HOUR_HAND_LENGTH);
+	LCD_Draw_Hand(mDeg, MINUTE_HAND_LENGTH);
+}
+
+// Displays time, both digital and analog, to the LCD screen
+// Input: hours, minutes
+void LCD_Refresh_Time(uint8_t hour, uint8_t minute){
 	ST7735_SetCursor(0,0);
 	ST7735_OutString("Time: ");
-	ST7735_OutString(uint8ToString(timeHour));
+	ST7735_OutString(uint8ToString(hour));
 	ST7735_OutString(":");
-	ST7735_OutString(uint8ToString(timeMinute));
-	ST7735_OutString("\n");
+	ST7735_OutString(uint8ToString(minute));
+	LCD_Refresh_Analog(hour, minute);
+}
+
+// Displays alarm to the LCD screen
+// Input: hours, minutes
+void LCD_Refresh_Alarm(uint8_t hour, uint8_t minute){
+	ST7735_SetCursor(0,1);
 	ST7735_OutString("Alarm: ");
-	ST7735_OutString(uint8ToString(alarmHour));
+	ST7735_OutString(uint8ToString(hour));
 	ST7735_OutString(":");
-	ST7735_OutString(uint8ToString(alarmMinute));
-	ST7735_OutString("\n");
+	ST7735_OutString(uint8ToString(minute));
 }
 
-void Update_Clock(uint8_t timeHour, uint8_t timeMinute, uint8_t alarmHour, uint8_t alarmMinute){
-	ST7735_FillScreen(0);  // set screen to black
-	Draw_Digital(timeHour, timeMinute, alarmHour, alarmMinute);
-	Draw_Face();
-	uint16_t hDeg = (timeHour*30 + (timeMinute>>1))%360;
-	uint16_t mDeg = (timeMinute*6)%360;
-	Draw_Hand(hDeg, HOUR_HAND_LENGTH);
-	Draw_Hand(mDeg, MINUTES_HAND_LENGTH);
-}
-
-void LCD_Init(){
+// Initializes the LCD screen, displays initial time
+// Input: time hours, time minutes, alarm hours, alarm minutes
+void LCD_Init(uint8_t timeHours, uint8_t timeMinutes, uint8_t alarmHours, uint8_t alarmMinutes){
 	ST7735_InitR(INITR_REDTAB);
   ST7735_FillScreen(0);  // set screen to black
 	ST7735_SetRotation(2);
+	LCD_Draw_Face();
+	LCD_Refresh_Time(timeHours, timeMinutes);
+	LCD_Refresh_Alarm(alarmHours, alarmMinutes);
 }

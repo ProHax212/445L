@@ -4,6 +4,14 @@
 
 int static alarmOn;
 
+void Start_Alarm(void){
+	alarmOn = 1;
+}
+
+void Stop_Alarm(void){
+	alarmOn = 0;
+}
+
 void togglePB2(void){
 	if(alarmOn) GPIO_PORTB_DATA_R ^= 0x04;	// Toggle PB2
 }
@@ -20,12 +28,4 @@ void portBInit(void){
 void Speaker_Init(unsigned long period){
 		portBInit();
 		Timer2_Init(&togglePB2, period);
-}
-
-void StartAlarm(void){
-	alarmOn = 1;
-}
-
-void StopAlarm(void){
-	alarmOn = 0;
 }

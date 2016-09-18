@@ -1,11 +1,13 @@
-#include <stdint.h>
-#include <math.h>
-#include "ST7735.h"
+// LCDInterface.h
 
-void Draw_Hand(uint8_t deg, uint8_t length);
+// Displays updated time, both digital and analog, to the LCD screen
+// Input: hours, minutes
+void LCD_Refresh_Time(uint8_t hour, uint8_t minute);
 
-void Update_Clock(uint8_t timeHour, uint8_t timeMinute, uint8_t alarmHour, uint8_t alarmMinute);
+// Displays updated alarm to the LCD screen
+// Input: hours, minutes
+void LCD_Refresh_Alarm(uint8_t hour, uint8_t minute);
 
-void Draw_Face(void);
-
-void LCD_Init(void);
+// Initializes the LCD screen, displays initial time
+// Input: time hours, time minutes, alarm hours, alarm minutes
+void LCD_Init(uint8_t timeHours, uint8_t timeMinutes, uint8_t alarmHours, uint8_t alarmMinutes);

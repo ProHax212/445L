@@ -1,9 +1,11 @@
-#include <stdint.h>
-#include "PLL.h"
-#include "../inc/tm4c123gh6pm.h"
+//Switch.h
 
-uint8_t Pause(void);
-void PortF_Init(void);
-void Board_Init(void);
-int Board_Input(void);
-void Check_Inputs(void);
+// Check which switches are pressed and respond accordingly
+// SW1 or SW2 pushed - stop alarm
+// SW1 or SW2 released - send to Button_Released()
+// Both pressed and released - reset
+// Input: mode
+void Check_Inputs(int m);
+
+//Initializes Board and PortF
+void Switch_Init(void);

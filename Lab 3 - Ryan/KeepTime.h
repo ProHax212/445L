@@ -1,31 +1,31 @@
-//KeepTime.h
+// KeepTime.h
 
-static int currentTime;
-static int currentAlarm;
+// Output: time format
+int Get_Time(void);
 
-// Get the current minutes for the time
-int Get_Minutes(void);
+// Output: time format
+int Get_Alarm(void);
 
-// Get the current hour for the time
-int Get_Hours(void);
+// Input: time format
+// Output: minutes
+int Get_Minutes(int t);
 
-// Get the current minutes for the alarm
-int Get_Alarm_Minutes(void);
+// Input: time format
+// Output: hours
+int Get_Hours(int t);
 
-// Get the current hours for the alarm
-int Get_Alarm_Hours(void);
+// Input: time format
+void Set_Time(int t);
 
-// Set the current time
-void Set_Time(int h, int m);
-
-// Set the current alarm
-void Set_Alarm(int h, int m);
-
-//Adds 1 minute to a time
-int incrementTime(int t);
-
-//Initializes KeepTime
-void KeepTime_Init(void);
+// Input: time format
+void Set_Alarm(int a);
 
 // Starts the alarm if the current time equals the set alarm
 void Check_Alarm(void);
+
+// Input: time, seconds
+// Output: time + seconds
+int incrementTime(int t, int s);
+
+// Initializes KeepTime
+void KeepTime_Init(uint8_t timeHours, uint8_t timeMinutes, uint8_t alarmHours, uint8_t alarmMinutes);

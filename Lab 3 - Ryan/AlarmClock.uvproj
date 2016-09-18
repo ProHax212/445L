@@ -465,6 +465,11 @@
               <FileType>1</FileType>
               <FilePath>.\Heartbeat.c</FilePath>
             </File>
+            <File>
+              <FileName>LCDInterface.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\LCDInterface.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
