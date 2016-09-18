@@ -20,9 +20,6 @@ void Set_Time(int t);
 // Input: time format
 void Set_Alarm(int a);
 
-// Starts the alarm if the current time equals the set alarm
-void Check_Alarm(void);
-
 // Input: time, seconds
 // Output: time + seconds
 int incrementTime(int t, int s);

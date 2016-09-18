@@ -19,8 +19,6 @@ static int currentTime;
 static int currentAlarm;
 static int secondsCounter;	// Not part of the encoded time.  Used only by this file to determine when to increment the minutes
 
-static int alarmHit;	// 0 - alarm off, 1 - alarm on
-
 
 // Output: time format
 int Get_Time(){
@@ -68,13 +66,6 @@ void Format_Alarm(int h, int m){
 	currentAlarm = Get_Time_Format(h, m);
 }
 
-// Start the alarm ISR if the alarm equals the time
-void Check_Alarm(){
-	if(alarmHit){
-		Start_Alarm();
-	}
-}
-
 // Input: time, seconds
 // Output: time + seconds
 int incrementTime(int t, int s){
@@ -102,7 +93,7 @@ void Timer1_Handler(void){
 		Clock_Tick(currentTime, currentAlarm);
 		secondsCounter %= 60;
 	}
-	if(currentTime == currentAlarm) alarmHit = 1;	// Check the alarm - set value if hit
+	if(currentTime == currentAlarm) Start_Alarm();	// Check the alarm - set value if hit
 }
 
 // Initialize the timer to start counting time

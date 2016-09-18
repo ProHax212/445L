@@ -29,10 +29,17 @@ void Set_Mode(int m){
 	if(mode == 0){
 		Set_Time(savedTime);
 		Set_Alarm(savedAlarm);
-	} else {
+	} else if(mode == 3){	// Customize alarm
+		Start_Alarm();
+	}else {
 		savedTime = Get_Time();
 		savedAlarm = Get_Alarm();
 	}
+}
+
+// Don't update the time if setting mode from customization
+void Set_Mode_Customize(int m){
+	mode = m;
 }
 
 // Updates the time if in 'Normal' mode (mode 0)
@@ -69,13 +76,12 @@ int main(void){
 	Switch_Init();
 	KeepTime_Init(timeHours, timeMinutes, alarmHours, alarmMinutes);
 	Heartbeat_Init();
-	Speaker_Init(305775);
+	Speaker_Init();
 	
 	EnableInterrupts();
 	
 	// Main loop
 	while(1){
 		Check_Inputs(mode);
-		Check_Alarm();
 	}
 }

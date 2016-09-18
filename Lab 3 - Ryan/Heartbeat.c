@@ -18,7 +18,7 @@ void Heartbeat_Init(void){
 void Toggle_Heartbeat(void){
 	GPIO_PORTF_DATA_R ^= 0x02;
 	
-	int i = 800000;
+	int i = 800;
 	while(i > 0) i -= 1;	// Wait 10 ms
 	
 	GPIO_PORTF_DATA_R ^= 0x02;

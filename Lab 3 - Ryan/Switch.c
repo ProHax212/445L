@@ -40,6 +40,9 @@ void Button_Released(int button, int m){
 			} else if(m == 2) {
 				Change_Clock_Alarm(HOUR);
 				break;
+			} else if(m == 3){
+				Change_Alarm(-1);
+				break;
 			}
 			break;
     case 2: // SW2 released
@@ -52,38 +55,70 @@ void Button_Released(int button, int m){
 			} else if(m == 2){
 				Change_Clock_Alarm(MIN);
 				break;
+			} else if(m == 3){
+				Change_Alarm(1);
+				break;
 			}
 			break;
+		case 3:	// Both released
+			if(m == 0){
+				Set_Mode(3);
+			}
 	}
 }
 
 // Check which switches are pressed and respond accordingly
 // SW1 or SW2 pushed - stop alarm
 // SW1 or SW2 released - send to Button_Released()
-// Both pressed and released - reset
+// Both pressed and released - reset, Choose alarm type (hold for 2 seconds)
 // Input: mode
 static int pressed;
+static int bothPressed = 0;	// Need a different variable for both to keep from overwriting
 static int reset;
+static int switchOneTimer = 0;	// Need to hold for 2 seconds
+static int switchTwoTimer = 0;  // Need to hold for 2 seconds
+static int switchBothTimer = 0;	// Need to hold for 2 seconds
 void Check_Inputs(int m){
 	int status = Board_Input();
 	switch (status){
 		case 0x01: //SW1 pressed
-			Stop_Alarm();
+			if(m == 0) Stop_Alarm();
 			pressed = 1;
+			if(m == 0){	// Normal mode - wait for 2 seconds
+				switchOneTimer += 1;
+				if(switchOneTimer < 0x001CA7F2) pressed = 0;
+			}
 			break;
 		case 0x10: //SW2 pressed
-			Stop_Alarm();
+			if (m == 0) Stop_Alarm();
 			pressed = 2;
+			if(m == 0){	// Normal mode - wait for 2 seconds
+				switchTwoTimer += 1;
+				if(switchTwoTimer < 0x001CA7F2) pressed = 0;
+			}
 			break;
 		case 0x00: //Both pressed
-			Stop_Alarm();
-			reset = 1;
+			if(m == 0){	// Normal mode - wait for 2 seconds
+				switchBothTimer += 1;
+				bothPressed = 1;
+				if(switchBothTimer < 0x001CA7F2) bothPressed = 0;
+			}else if(m == 3){
+				Stop_Alarm();
+				Set_Mode_Customize(0);
+			}else reset = 1;	// Only reset if mode isn't normal or in customization
 			break;
 		case 0x11: //Neither pressed
+			switchOneTimer = 0;
+			switchTwoTimer = 0;
+			switchBothTimer = 0;
 			if(reset == 1){
 				reset = 0;
+				Stop_Alarm();
 				Set_Mode(0);
-			} else if(pressed == 1 || pressed == 2){
+			} else if(bothPressed){
+				bothPressed = 0;
+				Button_Released(3, m);	// Hardcode in a value of 3 for when both are pressed
+			}else if(pressed == 1 || pressed == 2){
 				Button_Released(pressed, m);
 			}
 			pressed = 0;

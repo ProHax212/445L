@@ -11,3 +11,5 @@ void Change_Clock_Time(int s);
 
 // Updates the alarm in 'Alarm Set mode (mode 2)
 void Change_Clock_Alarm(int s);
+
+void Set_Mode_Customize(int m);
