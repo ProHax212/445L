@@ -1064,7 +1064,7 @@ void LCD_Draw_Hand(uint16_t deg, uint16_t length){
 
 // Draws clock face background
 void LCD_Draw_Face(){
-	//ST7735_DrawBitmap(0, 32, WATCH_FACE, 128, 128);//Need license to draw image this big
+	ST7735_DrawBitmap(0, 159, WATCH_FACE, 128, 128);//Need license to draw image this big
 }
 
 // Clears analog clock hands
@@ -1102,6 +1102,18 @@ void LCD_Refresh_Alarm(uint8_t hour, uint8_t minute){
 	ST7735_OutString(uint8ToString(minute));
 }
 
+void LCD_Print_Instructions(){
+	ST7735_SetCursor(0,2);
+	ST7735_OutString("SW1(Time) SW2(Alarm)");
+	ST7735_SetCursor(0,3);
+	ST7735_OutString("Both(Alarm Sound)");
+}
+
+void LCD_Print_Clock_Face(){
+	ST7735_SetCursor(0, 4);
+	ST7735_DrawBitmap(0, 159, WATCH_FACE, 120, 120);
+}
+
 // Initializes the LCD screen, displays initial time
 // Input: time hours, time minutes, alarm hours, alarm minutes
 void LCD_Init(uint8_t timeHours, uint8_t timeMinutes, uint8_t alarmHours, uint8_t alarmMinutes){
@@ -1111,4 +1123,6 @@ void LCD_Init(uint8_t timeHours, uint8_t timeMinutes, uint8_t alarmHours, uint8_
 	LCD_Draw_Face();
 	LCD_Refresh_Time(timeHours, timeMinutes);
 	LCD_Refresh_Alarm(alarmHours, alarmMinutes);
+	LCD_Print_Instructions();
+	//LCD_Print_Clock_Face();
 }

@@ -12,6 +12,28 @@
 #define SW2       0x01                      // on the right side of the Launchpad board
 #define HOUR 			3600
 #define MIN				60
+#define DELAY10US 800	// 10 microseconds for a 80MHz clock
+#define TWOSECONDS	0xBD	// 2 seconds waiting
+
+// Initialize SysTick with busy wait running at bus clock.
+void SysTick_Init(void){
+  NVIC_ST_CTRL_R = 0;                   // disable SysTick during setup
+  NVIC_ST_RELOAD_R = NVIC_ST_RELOAD_M;  // maximum reload value
+  NVIC_ST_CURRENT_R = 0;                // any write to current clears it
+                                        // enable SysTick with core clock
+  NVIC_ST_CTRL_R = NVIC_ST_CTRL_ENABLE+NVIC_ST_CTRL_CLK_SRC;
+}
+
+// Time delay using busy wait.
+// The delay parameter is in units of the core clock. (units of 62.5 nsec for 16 MHz clock)
+void SysTick_Wait(uint32_t delay){
+  volatile uint32_t elapsedTime;
+  uint32_t startTime = NVIC_ST_CURRENT_R;
+  do{
+    elapsedTime = (startTime-NVIC_ST_CURRENT_R)&0x00FFFFFF;
+  }
+  while(elapsedTime <= delay);
+}
 
 //------------Board_Input------------
 // Read and return the status of the switches.
@@ -22,6 +44,28 @@
 //         0x11 if no switches are pressed
 uint32_t Board_Input(void){
   return SWITCHES;
+}
+
+//------------Switch_Debounce------------
+// Read and return the status of the switches 
+// Input: none
+// Output: 0x01 SW1, 0x10 SW2, 0x00 Both
+// debounces switch
+uint32_t Switch_Debounce(void){
+uint32_t in,old,time; 
+  time = 1000; // 10 ms
+  old = Board_Input();
+  while(time){
+    SysTick_Wait(DELAY10US); // 10us
+    in = Board_Input();
+    if(in == old){
+      time--; // same value 
+    }else{
+      time = 1000;  // different
+      old = in;
+    }
+  }
+  return old;
 }
 
 // Handles button release actions
@@ -79,14 +123,14 @@ static int switchOneTimer = 0;	// Need to hold for 2 seconds
 static int switchTwoTimer = 0;  // Need to hold for 2 seconds
 static int switchBothTimer = 0;	// Need to hold for 2 seconds
 void Check_Inputs(int m){
-	int status = Board_Input();
+	int status = Switch_Debounce();
 	switch (status){
 		case 0x01: //SW1 pressed
 			if(m == 0) Stop_Alarm();
 			pressed = 1;
 			if(m == 0){	// Normal mode - wait for 2 seconds
 				switchOneTimer += 1;
-				if(switchOneTimer < 0x001CA7F2) pressed = 0;
+				if(switchOneTimer < TWOSECONDS) pressed = 0;
 			}
 			break;
 		case 0x10: //SW2 pressed
@@ -94,14 +138,14 @@ void Check_Inputs(int m){
 			pressed = 2;
 			if(m == 0){	// Normal mode - wait for 2 seconds
 				switchTwoTimer += 1;
-				if(switchTwoTimer < 0x001CA7F2) pressed = 0;
+				if(switchTwoTimer < TWOSECONDS) pressed = 0;
 			}
 			break;
 		case 0x00: //Both pressed
 			if(m == 0){	// Normal mode - wait for 2 seconds
 				switchBothTimer += 1;
 				bothPressed = 1;
-				if(switchBothTimer < 0x001CA7F2) bothPressed = 0;
+				if(switchBothTimer < TWOSECONDS) bothPressed = 0;
 			}else if(m == 3){
 				Stop_Alarm();
 				Set_Mode_Customize(0);
@@ -171,4 +215,5 @@ void Board_Init(void){
 void Switch_Init(){
 	Board_Init();
 	PortF_Init();
+	SysTick_Init();
 }
