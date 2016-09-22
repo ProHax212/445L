@@ -94,6 +94,7 @@ Port A, SSI0 (PA2, PA3, PA5, PA6, PA7) sends data to Nokia5110 LCD
 #include "LED.h"
 #include "Nokia5110.h"
 #include "adc.h"
+#include "ST7735.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -216,12 +217,25 @@ double getTemperature(char* json){//Looking for "temp":[val],
 	return strtod(value, NULL);
 }
 
+void getTemperatureString(char json[1024], char returnString[20]){
+	char value[5];
+	for(int c=0; json[c+6] != 0; c++){
+		if(json[c] == '"' && json[c+1] == 't' && json[c+2] == 'e' && json[c+3] == 'm' && json[c+4] == 'p' && json[c+5] == '"' && json[c+6] == ':'){
+			for(int v = c+7; v < (sizeof(value) + (c + 7)) && json[v] != ',' && json[v] != 0; v++){
+				value[v - (c+7)] = json[v];
+			}
+		}
+	}
+	
+	strcpy(returnString, value);
+}
+
 /*
  * Application's entry point
  */
 // 1) change Austin Texas to your city
 // 2) you can change metric to imperial if you want temperature in F
-#define REQUEST "GET /data/2.5/weather?q=Austin%20Texas&APPID=1234567890abcdef1234567890abcdef&units=metric HTTP/1.1\r\nUser-Agent: Keil\r\nHost:api.openweathermap.org\r\nAccept: */*\r\n\r\n"
+#define REQUEST "GET /data/2.5/weather?q=Austin&APPID=53cb9194b7dcd0c7b9d7571e9dc69679&units=metric HTTP/1.1\r\nUser-Agent: Keil\r\nHost:api.openweathermap.org\r\nAccept: */*\r\n\r\n"
 // 1) go to http://openweathermap.org/appid#use 
 // 2) Register on the Sign up page
 // 3) get an API key (APPID) replace the 1234567890abcdef1234567890abcdef with your APPID
@@ -230,6 +244,8 @@ int main(void){int32_t retVal;  SlSecParams_t secParams;
   initClk();        // PLL 50 MHz
   UART_Init();      // Send data to PC, 115200 bps
   LED_Init();       // initialize LaunchPad I/O 
+	ST7735_InitR(INITR_REDTAB);
+  ST7735_FillScreen(0);  // set screen to black
   UARTprintf("Weather App\n");
   retVal = configureSimpleLinkToDefaultState(pConfig); // set policies
   if(retVal < 0)Crash(4000000);
@@ -245,9 +261,9 @@ int main(void){int32_t retVal;  SlSecParams_t secParams;
   UARTprintf("Connected\n");
 	
 	// ADC Initialization
-	//ADC0_InitSWTriggerSeq3_Ch9();
-	//char voltage[15];
-	//ADC0_InSeq3(voltage);
+	ADC0_InitSWTriggerSeq3_Ch9();
+	char voltage[15];
+	ADC0_InSeq3(voltage);
 	
   while(1){
     strcpy(HostName,"api.openweathermap.org");
@@ -271,8 +287,14 @@ int main(void){int32_t retVal;  SlSecParams_t secParams;
         UARTprintf("\r\n\r\n");
         UARTprintf(Recvbuff);  UARTprintf("\r\n");
 				UARTprintf("Temperature: ");
-				double temperature = getTemperature(Recvbuff);
-				UARTprintf("%f", temperature);
+				//double temperature = getTemperature(Recvbuff);
+				char temperature[20];
+				getTemperatureString(Recvbuff, temperature);
+				UARTprintf("%s", temperature);
+				ST7735_SetCursor(0, 0);
+				printf("Temp = %s C", temperature);
+				ST7735_SetCursor(0, 1);
+				printf("%s", voltage);
       }
     }
     while(Board_Input()==0){}; // wait for touch

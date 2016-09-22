@@ -40,5 +40,6 @@
 .\rvmdk\main.o: LED.h
 .\rvmdk\main.o: Nokia5110.h
 .\rvmdk\main.o: adc.h
+.\rvmdk\main.o: ST7735.h
 .\rvmdk\main.o: C:\Keil\ARM\ARMCC\bin\..\include\stdio.h
 .\rvmdk\main.o: C:\Keil\ARM\ARMCC\bin\..\include\stdlib.h
