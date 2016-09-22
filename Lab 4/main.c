@@ -95,6 +95,8 @@ Port A, SSI0 (PA2, PA3, PA5, PA6, PA7) sends data to Nokia5110 LCD
 #include "Nokia5110.h"
 #include "adc.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #define SSID_NAME  "Galaxy S5 1559" /* Access point name to connect to */
 #define SEC_TYPE   SL_SEC_TYPE_WPA
@@ -201,6 +203,19 @@ void Crash(uint32_t time){
     LED_RedToggle();
   }
 }
+
+double getTemperature(char* json){//Looking for "temp":[val],
+	char value[5];
+	for(int c=0; json[c+6] != 0; c++){
+		if(json[c] == '"' && json[c+1] == 't' && json[c+2] == 'e' && json[c+3] == 'm' && json[c+4] == 'p' && json[c+5] == '"' && json[c+6] == ':'){
+			for(int v = c+7; v < sizeof(value) && json[v] != ',' && json[v] != 0; v++){
+				value[v - c+7] = json[v];
+			}
+		}
+	}
+	return strtod(value, NULL);
+}
+
 /*
  * Application's entry point
  */
@@ -230,9 +245,9 @@ int main(void){int32_t retVal;  SlSecParams_t secParams;
   UARTprintf("Connected\n");
 	
 	// ADC Initialization
-	ADC0_InitSWTriggerSeq3_Ch9();
-	char voltage[15];
-	ADC0_InSeq3(voltage);
+	//ADC0_InitSWTriggerSeq3_Ch9();
+	//char voltage[15];
+	//ADC0_InSeq3(voltage);
 	
   while(1){
     strcpy(HostName,"api.openweathermap.org");
@@ -255,12 +270,16 @@ int main(void){int32_t retVal;  SlSecParams_t secParams;
         LED_GreenOn();
         UARTprintf("\r\n\r\n");
         UARTprintf(Recvbuff);  UARTprintf("\r\n");
+				UARTprintf("Temperature: ");
+				double temperature = getTemperature(Recvbuff);
+				UARTprintf("%f", temperature);
       }
     }
     while(Board_Input()==0){}; // wait for touch
     LED_GreenOff();
   }
 }
+
 
 /*!
     \brief This function puts the device in its default state. It:
