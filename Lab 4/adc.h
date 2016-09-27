@@ -21,3 +21,9 @@ void ADC0_InitSWTriggerSeq3_Ch9(void);
 // Input: none
 // Output: 12-bit result of ADC conversion
 void ADC0_InSeq3(char printResult[15]);
+
+//------------ADC0_InSeq2-------------
+// Output: Internal temp
+void ADC0_InSeq2(char printResult[15]);
+
+void ADC0_InSeq3Number(char printResult[15]);
