@@ -1,103 +1,144 @@
 #include <stdint.h>
+#include <stdlib.h>
 #include "music.h"
 
-    // calculated frequencies are not exact, due to the impreciseness of delay loops
-    // assumes using 16 MHz PIOSC (default setting for clock source)
-    // maximum frequency with 16 MHz PIOSC: (8,000,000 bits/1 sec)*(1 sample/16 bits)*(1 wave/32 sample) = 15,625 Hz
-    // maximum frequency with 20 MHz PLL: (10,000,000 bits/1 sec)*(1 sample/16 bits)*(1 wave/32 sample) = 19,531.25 Hz
-//    SysTick_Wait(0);                 // ?? kHz sine wave (actually 12,000 Hz)
-//    SysTick_Wait(9);                 // 55.6 kHz sine wave (actually 10,000 Hz)
-//    SysTick_Wait(15);                // 33.3 kHz sine wave (actually 8,500 Hz)
-//    SysTick_Wait(19);                // 26.3 kHz sine wave (actually 8,500 Hz)
-//    SysTick_Wait(64);                // 7.81 kHz sine wave (actually 4,800 Hz)
-//    SysTick_Wait(99);                // 5.05 kHz sine wave (actually 3,500 Hz)
-//    SysTick_Wait(1136);              // 440 Hz sine wave (actually 420 Hz)
-//    SysTick_Wait(50000);             // 10 Hz sine wave (actually 9.9 Hz)
+#define SN 1
+#define EN 2
+#define DEN 3
+#define QN 4
+#define DQN 6
+#define HN 8
+#define DHN 12
+#define WN 16
+#define DWN 24
 
-// 12-bit 32-element sine wave
-// multiply each value by 2 to shift into bits 12:1 of SSI packet
-// three control bits in 15:13 are all zero for immediate DAC update
-// book figure shows MAX5353 in unipolar rail-to-rail configuration
-// that means when wave[n] = 0x0000 (LSB = 0), output = 0
-//                 wave[n] = 0x1000 (LSB = 0), output = Vref
-//                 wave[n] = 0x1FFE (LSB = 0), output = 2*Vref
+const Note nullNotes[maxNotes] = {{0,0}, {0,0}};//Default channel if using less than maxChannels
+const Note singleNote[maxNotes] = {{WN,1000}, {0,0}};//Extra null notes if using less than maxNotes
+const Note doubleNote[maxNotes] = {{HN, 1200}, {HN, 1200}};
+
+//32 outputs for a sine wave
 const Instrument sine = {.wavePointer=0, .wave = {
   2048*2,2448*2,2832*2,3186*2,3496*2,3751*2,3940*2,4057*2,4095*2,4057*2,3940*2,
   3751*2,3496*2,3186*2,2832*2,2448*2,2048*2,1648*2,1264*2,910*2,600*2,345*2,
   156*2,39*2,0*2,39*2,156*2,345*2,600*2,910*2,1264*2,1648*2}};
 
-// 32 outputs to the DAC for a flute sound
+// 32 outputs for a flute sound
 const Instrument flute = {.wavePointer=0, .wave = {
-	1007, 1252, 1374, 1548, 1698, 1797, 1825, 1797, 1675, 1562, 1383, 1219, 1092, 1007, 913, 890, 833, 847, 
-	810, 777, 744, 674, 598, 551, 509, 476, 495, 533, 589, 659, 758, 876}};
+	1007*2, 1252*2, 1374*2, 1548*2, 1698*2, 1797*2, 1825*2, 1797*2, 1675*2, 1562*2, 1383*2, 1219*2, 1092*2, 1007*2, 913*2, 890*2, 833*2, 847*2, 
+	810*2, 777*2, 744*2, 674*2, 598*2, 551*2, 509*2, 476*2, 495*2, 533*2, 589*2, 659*2, 758*2, 876*2}};
 
 Player player;
+int repeat;//0-no repeat, 1-repeat, 2-shuffle
 
-void rewind(){
+//Switches to next repeat setting
+void Music_Increment_Repeat(){
+	repeat++;
+	repeat%=3;
+}	
+
+//Resets current song to beginning
+void Music_Rewind(){
 	Song song = player.songs[player.songPointer];
-	for(int v=0; v<sizeof(song.voices); v++){//For all voices
-		song.voices[v].notePointer = 0;//Reset to note 0
-		song.voices[v].instrument.wavePointer = 0;//Reset wave to 0
+	for(int c=0; c<sizeof(song.channels); c++){//For all channels
+		Channel chan = song.channels[c];
+		chan.notePointer = 0;//Reset channel to note 0
+		chan.waitTime = chan.notes[chan.notePointer].period;//Reset wait time to note 0
+		chan.instrument.wavePointer = 0;//Reset wave to 0
+		song.channels[c] = chan;//Save channel
 	}
 	player.songs[player.songPointer] = song;//Save song
 }
 
-void skip(){
-	rewind();//Reset current song
-	player.songPointer++;//Go to next song
+//Resets current song, handles next song based on repeat settings
+void Music_Skip(){
+	Music_Rewind();//Reset current song
+	switch(repeat){
+		case 0://Next
+			player.songPointer++;
+			break;
+		case 1://Repeat
+			break;
+		case 2://Shuffle
+			player.songPointer = rand() % sizeof(player.songs);
+			break;
+	}
 }
 
 //Returns current amplitude
-int getAmp(){
+//Loops through wave of current note
+int Music_Update_Amplitude(){
 	Song song = player.songs[player.songPointer];
 	int amp = 0;
-	for(int v=0; v<sizeof(song.voices); v++){//For each voice
-		Voice voice = song.voices[v];
-		amp += voice.instrument.wave[voice.instrument.wavePointer];//Add to the amplitude
+	
+	for(int c=0; c<sizeof(song.channels); c++){//For each channel
+		Channel channel = song.channels[c];
 		
-		if(voice.waitTime == 0){//Ready for next wave point
-			voice.instrument.wavePointer++;//Increment wave pointer, update wait time
-			voice.waitTime = voice.notePeriod[voice.notePointer];
+		if(channel.notePointer < sizeof(channel.notes)){//If channel is not finished
+			amp += channel.instrument.wave[channel.instrument.wavePointer];//Add to the amplitude
+			
+			if(channel.waitTime <= 0){//Ready for next wave point (should never be < 0)
+				channel.instrument.wavePointer++;//Increment wave pointer
+				channel.instrument.wavePointer %= waveSize;//Loop wave if necessary
+				channel.waitTime += channel.notes[channel.notePointer].period;//Update wait time to next point on wave
+			}
+			song.channels[c] = channel;//Save channel
 		}
-		if(voice.instrument.wavePointer == waveSize){//End of wave
-			voice.notePointer++;//Next note
-			voice.instrument.wavePointer = 0;//Restart wave
-		}
-		song.voices[v] = voice;//Save voice
 	}
 	player.songs[player.songPointer] = song;//Save song
 	
-	return (amp/sizeof(song.voices))&0x1F;//Average to prevent too high of amplitude
+	return (amp/sizeof(song.channels));//Average to prevent too high of amplitude
 }
 
-//Returns delay until next wave update
-int getDelay(){
+//Returns the wait time until next note
+//Updates wait times of each channel
+int Music_Get_Wait(){
 	Song song = player.songs[player.songPointer];
-	int lowestWait = song.voices[0].waitTime;
-	for(int v=0; v<sizeof(song.voices); v++){//For each voice
-		if(song.voices[v].waitTime < lowestWait)
-			lowestWait = song.voices[v].waitTime;//Update lowest wait time
+	int lowestWait = song.channels[0].waitTime;
+	for(int c=0; c<sizeof(song.channels); c++){//For each channel
+		if(song.channels[c].waitTime < lowestWait)
+			lowestWait = song.channels[c].waitTime;//Update lowest wait time
 	}
-	for(int v=0; v<sizeof(song.voices); v++){//For each voice
-		song.voices[v].waitTime -= lowestWait;//Subtract lowest wait time
+	for(int c=0; c<sizeof(song.channels); c++){//For each channel
+		song.channels[c].waitTime -= lowestWait;//Subtract lowest wait time
 	}
+	player.songs[player.songPointer] = song;//Save song
 	return lowestWait;
 }
 
+//Increment song to next beat
+void Music_Next_Beat(){
+	Song song = player.songs[player.songPointer];
+	
+	for(int c=0; c<sizeof(song.channels); c++){//For each channel
+		Channel chan = song.channels[c];
+		chan.beatCounter++;//Increment beat
+		if(chan.beatCounter >= chan.notes[chan.notePointer].length){//If last beat of note
+			chan.beatCounter = 0;//Go to next note
+			chan.notePointer++;
+		}
+		song.channels[c] = chan;//Save channel
+	}
+	player.songs[player.songPointer] = song;//Save song
+}
+
 void Init_Player(){
-	//Initialize voices
-	Voice singleSineNote = {.instrument=sine, .noteLength={1000},  .notePeriod={1136}};
-	Voice singleFluteNote = {.instrument=flute, .noteLength={1000}, .notePeriod={1136}};
+	//Initialize channels
+	Channel singleSineNote = {sine, *singleNote};
+	Channel singleFluteNote = {flute, *singleNote};
+	Channel doubleSineNote = {sine, *doubleNote};
+	Channel nullChannel = {sine, *nullNotes};
 	
 	//Initialize player
 	player.songPointer = 0;
 	
 	//Add songs to player
-	player.songs[0].voices[0] = singleSineNote;//Define voices of each song
-	player.songs[1].voices[0] = singleFluteNote;
+	player.songs[0].channels[0] = singleSineNote;//Define channels of each song
+	player.songs[0].channels[1] = nullChannel;//Add null channel if only using one channel
 	
-	for(int s=0; s<numSongs; s++){//Set to beginning of all songs
-		player.songPointer = 0;
-		rewind();
-	}
+	player.songs[1].channels[0] = singleFluteNote;
+	player.songs[1].channels[1] = doubleSineNote;
+	
+	player.songPointer = 0;//Set to first song
+	for(int s=0; s<numSongs; s++)//Set all songs to the beginning
+		Music_Rewind();
 }
