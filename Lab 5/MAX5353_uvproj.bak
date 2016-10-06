@@ -445,6 +445,11 @@
               <FileType>5</FileType>
               <FilePath>.\PLL.h</FilePath>
             </File>
+            <File>
+              <FileName>music.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\music.h</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

@@ -31,20 +31,64 @@
 #include "SysTick.h"
 #include "music.h"
 #include "Switch.h"
+#include "Timer0A.h"
+#include "Timer1.h"
+#include "PLL.h"
+#include "music2.h"
+
+/* Get the amplitude to output and send to DAC
+int currentAmplitude = 0;
+void timerOneHandle(){
+	int amplitude = Flute[currentAmplitude % 32];
+	amplitude &= 0x0FFF;
+	amplitude |= 0x6000;
+	DAC_Out(amplitude);
+	
+	currentAmplitude += 1;
+}*/
+
+static int lastPressed = 0x11;	// None pressed
+void checkInputs(){
+	int buttonPress = Switch_Debounce();
+	switch(buttonPress){
+		// SW1 Pressed
+		case 0x01:
+			lastPressed = 0x01;
+		  break;
+		// SW2 Pressed
+		case 0x10:
+			lastPressed = 0x10;
+			break;
+		// SW3 Pressed
+		case 0x100:
+			lastPressed = 0x100;
+			break;
+		case 0x11:
+			switch(lastPressed){
+				case 0x01:
+					lastPressed = 0x11;
+					Toggle_Pause();
+					break;
+				case 0x10:
+					lastPressed = 0x11;
+					Rewind();
+					break;
+				case 0x100:
+					lastPressed = 0x11;
+					Switch_Instruments();
+			}
+			break;
+	}
+}
 
 int main(void){
-  uint32_t i=0;
+	PLL_Init(Bus20MHz);
   DAC_Init(0x1000);                  // initialize with command: Vout = Vref
   SysTick_Init();
 	Switch_Init();
+	Init_Music();
 	
-  while(1<2){
-		Check_Inputs();
-		if(Switch_Get_Skip() == 1)
-			skip();
-		if(Switch_Get_Play() == 1){
-			DAC_Out(getAmp());
-			SysTick_Wait(getDelay());
-		}
+  while(1){
+		checkInputs();
   }
 }

@@ -397,8 +397,8 @@ void calculateTimes(){
 	int maxTime = 0;
 	for(int i = 0; i < 10; i++){
 			int startTime = GetCurrentTime();
-      getWeatherData();
-			//sendToServer();
+      //getWeatherData();
+			sendToServer();
 			int deltaT = GetElapsedInMs(startTime);	// Time for this iteration in ms
 			elapsedTime += deltaT;
 			if(deltaT < minTime) minTime = deltaT;
@@ -451,9 +451,9 @@ int main(void){
 	
   while(1){
 		
-		getWeatherData();
-		sendToServer();
-		extraCredit();
+		//getWeatherData();
+		//sendToServer();
+		//extraCredit();
 		calculateTimes();
 		
     while(Board_Input()==0){}; // wait for touch
