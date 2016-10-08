@@ -1,0 +1,16 @@
+Forward Design Changes Report
+-----------------------------
+
+Report File:        C:\Users\ryan_comer\Desktop\Fall 2016\EE445L Labs\Lab6_artistStarter (PCB - Forward Design Changes Report).txt
+Report Written:     Saturday, October 08, 2016
+Design Path:        C:\Users\ryan_comer\Desktop\Fall 2016\EE445L Labs\Lab6_artistStarter.pcb
+Design Title:       
+Created:            1/29/2013 12:01:41 AM
+Last Saved:         10/8/2016 1:27:24 PM
+Editing Time:       1941 min
+Units:              mil (precision 0)
+
+The designs are the same, so no design changes to forward.
+
+
+End Of Report.
