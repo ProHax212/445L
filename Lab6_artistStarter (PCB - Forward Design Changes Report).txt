@@ -6,11 +6,12 @@ Report Written:     Saturday, October 08, 2016
 Design Path:        C:\Users\ryan_comer\Desktop\Fall 2016\EE445L Labs\Lab6_artistStarter.pcb
 Design Title:       
 Created:            1/29/2013 12:01:41 AM
-Last Saved:         10/8/2016 1:27:24 PM
-Editing Time:       1941 min
+Last Saved:         10/8/2016 3:08:36 PM
+Editing Time:       2041 min
 Units:              mil (precision 0)
 
-The designs are the same, so no design changes to forward.
+Connected pin "U1-22" to net "PA5".
+Connected pin "J5-7" to net "PA5".
 
 
 End Of Report.
